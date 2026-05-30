@@ -1,0 +1,22 @@
+{% load static %}<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>500 — Sunucu Hatası — PatiVer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="error-page">
+  <div class="error-inner">
+    <div class="error-code">500</div>
+    <span class="error-paw">😿</span>
+    <h2>Sunucumuz Biraz Yoruldu</h2>
+    <p>Beklenmedik bir hata oluştu. Ekibimiz bu sorunu çözmek için çalışıyor. Lütfen birkaç dakika sonra tekrar deneyin.</p>
+    <div class="error-btns">
+      <a href="/" class="btn-err-primary">🏠 Anasayfaya Dön</a>
+      <a href="javascript:location.reload()" class="btn-err-outline">🔄 Yeniden Dene</a>
+    </div>
+  </div>
+</div>
+</body></html>

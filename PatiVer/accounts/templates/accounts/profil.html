@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Profilim — PatiVer{% endblock %}
+{% block content %}
+<div class="container py-page">
+  <div class="profil-grid">
+    <div>
+      <div class="card card-sm">
+        <div class="profil-card-top">
+          <div class="profil-av">{{ user.username|first|upper }}</div>
+          <div class="profil-name">{{ user.get_full_name|default:user.username }}</div>
+          <div class="profil-email">{{ user.email }}</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-item"><strong>{{ gonderi_sayisi }}</strong><span>Gönderi</span></div>
+          <div class="stat-item"><strong>{{ toplam_bagis }}₺</strong><span>Bağış</span></div>
+        </div>
+        <a href="{% url 'cikis' %}" class="btn btn-ghost btn-full" style="margin-top:8px">Çıkış Yap</a>
+      </div>
+
+      <div class="card card-sm" style="margin-top:16px">
+        <div class="card-h">🏅 Rozetlerim</div>
+        <div class="rozet-grid">
+          {% for r in rozetler %}
+          <div class="rozet {% if r.kazanildi %}kazanildi{% endif %}" title="{{ r.aciklama }}">
+            <div class="rozet-em">{{ r.emoji }}</div>
+            <div class="rozet-isim">{{ r.isim }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card card-sm" style="margin-top:16px">
+        <div class="card-h">🔗 Hızlı Linkler</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="{% url 'akis' %}" class="btn btn-ghost btn-sm" style="justify-content:flex-start">📣 Sosyal Akış</a>
+          <a href="{% url 'bagis' %}" class="btn btn-ghost btn-sm" style="justify-content:flex-start">💜 Bağış Yap</a>
+          <a href="{% url 'randevularim' %}" class="btn btn-ghost btn-sm" style="justify-content:flex-start">🏥 Randevularım</a>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-h">⚙️ Profil Ayarları</div>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="fg"><label>Ad</label><input type="text" name="first_name" value="{{ user.first_name }}" class="fi"></div>
+            <div class="fg"><label>Soyad</label><input type="text" name="last_name" value="{{ user.last_name }}" class="fi"></div>
+          </div>
+          <div class="fg"><label>E-posta (değiştirilemez)</label><input type="email" value="{{ user.email }}" class="fi" disabled style="opacity:.6"></div>
+          <div class="fg"><label>Hakkımda</label><textarea name="bio" class="fi" rows="3" placeholder="Kendinizden bahsedin...">{{ profil.bio }}</textarea></div>
+
+          <div style="border-top:1px solid var(--bdr2);margin:24px 0;padding-top:20px">
+            <div class="card-h">🔔 Bildirim Ayarları</div>
+            <div class="toggle-row">
+              <div class="toggle-info"><strong>Sosyal Bildirimler</strong><p>Beğeni ve yorumlar hakkında bilgi al.</p></div>
+              <label class="tgl"><input type="checkbox" name="sosyal_bildirim" {% if profil.sosyal_bildirim %}checked{% endif %}><span class="tgl-s"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><strong>Etkinlik Duyuruları</strong><p>Yakınındaki etkinliklerden haberdar ol.</p></div>
+              <label class="tgl"><input type="checkbox" name="etkinlik_bildirim" {% if profil.etkinlik_bildirim %}checked{% endif %}><span class="tgl-s"></span></label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:8px">Değişiklikleri Kaydet ✅</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

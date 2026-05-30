@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Randevularım — PatiVer{% endblock %}
+{% block content %}
+<div class="container py-page">
+  <a href="{% url 'veteriner' %}" class="back-link">← Veteriner Listesi</a>
+  <div class="page-hdr"><h1>🗓️ Randevularım</h1><p>Oluşturduğunuz tüm randevu talepleri.</p></div>
+  {% if randevular %}
+  <div style="display:flex;flex-direction:column;gap:14px">
+    {% for r in randevular %}
+    <div class="card card-sm">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+        <div style="display:flex;gap:14px;align-items:center">
+          <div class="vet-ico">🏥</div>
+          <div>
+            <strong style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--brand-dark)">{{ r.veteriner.isim }}</strong>
+            <div style="font-size:.82rem;color:var(--muted);margin-top:2px">{{ r.veteriner.uzmanlik }}</div>
+            <div style="font-size:.875rem;margin-top:4px">🐾 <strong>{{ r.hayvan_adi }}</strong> · 📅 {{ r.tarih }}</div>
+          </div>
+        </div>
+        <span class="randevu-badge badge-{{ r.durum }}">
+          {% if r.durum == 'bekliyor' %}⏳{% elif r.durum == 'onaylandi' %}✅{% else %}❌{% endif %}
+          {{ r.get_durum_display }}
+        </span>
+      </div>
+      {% if r.neden %}
+      <div style="margin-top:12px;padding:10px 14px;background:var(--bg2);border-radius:10px;font-size:.875rem;color:var(--txt2)">
+        📝 {{ r.neden }}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card empty-card">
+    <div class="empty-ico">🗓️</div>
+    <h3>Henüz randevu yok</h3>
+    <p>Veterinerler sayfasından randevu alabilirsiniz.</p>
+    <a href="{% url 'veteriner' %}" class="btn btn-primary" style="margin-top:16px">Veteriner Bul →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

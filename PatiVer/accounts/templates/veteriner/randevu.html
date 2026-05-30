@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Randevu Al — {{ vet.isim }} — PatiVer{% endblock %}
+{% block content %}
+<div class="container py-page">
+  <a href="{% url 'veteriner' %}" class="back-link">← Veteriner Listesi</a>
+  <div class="randevu-card">
+    <div class="card">
+      <div class="vet-header" style="margin-bottom:20px">
+        <div class="vet-ico">🏥</div>
+        <div>
+          <h2 style="font-size:1.3rem">{{ vet.isim }}</h2>
+          <span class="vet-uzm">{{ vet.uzmanlik }}</span>
+          <div class="vet-stars" style="margin-top:4px">★★★★★ {{ vet.puan }}/5.0</div>
+          <div style="font-size:.82rem;color:var(--muted);margin-top:6px">📍 {{ vet.adres }}</div>
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--bdr2);margin-bottom:24px">
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:18px;color:var(--brand-dark)">Randevu Talebi Oluştur</h3>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="fg"><label>Evcil Hayvanın Adı *</label><input type="text" name="hayvan_adi" class="fi" required placeholder="örn: Rocky, Luna..."></div>
+          <div class="fg"><label>Adınız Soyadınız *</label><input type="text" name="sahip_adi" class="fi" required value="{{ user.get_full_name|default:'' }}" placeholder="Adınız Soyadınız"></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Telefon Numaranız *</label><input type="tel" name="telefon" class="fi" required placeholder="05XX XXX XX XX"></div>
+          <div class="fg"><label>Uygun Tarih *</label><input type="date" name="tarih" class="fi" required></div>
+        </div>
+        <div class="fg"><label>Ziyaret Nedeni *</label><textarea name="neden" class="fi" rows="4" required placeholder="örn: Yıllık aşı, genel kontrol, beslenme sorunu..."></textarea></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+          <a href="{% url 'veteriner' %}" class="btn btn-ghost btn-sm">İptal</a>
+          <button type="submit" class="btn btn-primary">Randevu Talebi Gönder ✅</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

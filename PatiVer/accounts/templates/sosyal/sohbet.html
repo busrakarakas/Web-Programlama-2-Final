@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Pati Sohbet — PatiVer{% endblock %}
+{% block content %}
+<div class="container py-page">
+  <div class="page-hdr"><h1>💬 Pati Sohbet</h1><p>Hayvanseverlerle anlık iletişim kur.</p></div>
+  <div class="chat-layout">
+    <div class="chat-sidebar">
+      <div class="chat-sidebar-head"><h3>💬 Sohbetler</h3></div>
+      <div class="chat-sidebar-body">
+        {% if kanallar %}<div class="chat-section-label">Kanallar</div>
+        {% for k in kanallar %}
+        <a href="{% url 'sohbet' %}?s={{ k.pk }}" class="chat-item {% if aktif and aktif.pk == k.pk %}active{% endif %}">
+          <div class="chat-av chat-av-hash">#</div>
+          <div class="chat-item-info">
+            <strong>{{ k.isim }}</strong>
+            {% if k.son_mesaj %}<span class="chat-last">{{ k.son_mesaj.metin|truncatechars:30 }}</span>{% endif %}
+          </div>
+        </a>
+        {% endfor %}{% endif %}
+        {% if dmler %}<div class="chat-section-label">Mesajlar</div>
+        {% for dm in dmler %}
+        <a href="{% url 'sohbet' %}?s={{ dm.pk }}" class="chat-item {% if aktif and aktif.pk == dm.pk %}active{% endif %}">
+          <div class="chat-av">{{ dm.isim|first|upper }}</div>
+          <div class="chat-item-info">
+            <strong>{{ dm.isim }}</strong>
+            {% if dm.son_mesaj %}<span class="chat-last">{{ dm.son_mesaj.metin|truncatechars:30 }}</span>{% endif %}
+          </div>
+        </a>
+        {% endfor %}{% endif %}
+        {% if not kanallar and not dmler %}
+        <div style="padding:24px 16px;text-align:center;color:var(--muted);font-size:.85rem">
+          <p>💬</p><p style="margin-top:8px">Henüz kanal yok.<br>Admin panelinden ekleyin.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="chat-main">
+      {% if aktif %}
+      <div class="chat-topbar">
+        <div>
+          <strong>{% if aktif.kanal %}#{% endif %}{{ aktif.isim }}</strong>
+          <span>{{ mesajlar.count }} mesaj</span>
+        </div>
+      </div>
+      <div class="chat-messages" id="msg-list">
+        {% for m in mesajlar %}
+        <div class="msg-row {% if user.is_authenticated and m.gonderen == user %}mine{% endif %}">
+          {% if not user.is_authenticated or m.gonderen != user %}
+          <div class="av av-sm">{{ m.gonderen.username|first|upper }}</div>
+          {% endif %}
+          <div class="msg-bbl">
+            {% if not user.is_authenticated or m.gonderen != user %}
+            <span class="msg-kisi">{{ m.gonderen.get_full_name|default:m.gonderen.username }}</span>
+            {% endif %}
+            <p>{{ m.metin }}</p>
+            <span class="msg-time">{{ m.gonderildi|time:"H:i" }}</span>
+          </div>
+          {% if user.is_authenticated and m.gonderen == user %}
+          <div class="av av-sm">{{ user.username|first|upper }}</div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:48px;color:var(--muted)">
+          <p style="font-size:2rem">💬</p>
+          <p style="margin-top:8px">Henüz mesaj yok. İlk mesajı gönder!</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% if user.is_authenticated %}
+      <div class="chat-input-row">
+        <input id="msg-inp" class="chat-inp" placeholder="Bir mesaj yaz... (Enter ile gönder)" 
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg({{ aktif.pk }})}">
+        <button class="btn btn-primary btn-sm" onclick="sendMsg({{ aktif.pk }})">Gönder ➤</button>
+      </div>
+      {% else %}
+      <div class="chat-login-bar">
+        <a href="{% url 'giris' %}">Mesaj göndermek için giriş yapın →</a>
+      </div>
+      {% endif %}
+      {% else %}
+      <div style="display:flex;align-items:center;justify-content:center;flex:1;flex-direction:column;gap:12px;color:var(--muted)">
+        <p style="font-size:3rem">💬</p>
+        <p>Bir sohbet veya kanal seçin.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script>
+const CSRF='{{ csrf_token }}';
+const MY_H='{{ user.username|first|upper }}';
+document.addEventListener('DOMContentLoaded',()=>{
+  const l=document.getElementById('msg-list');
+  if(l)l.scrollTop=l.scrollHeight;
+});
+async function sendMsg(sid){
+  const inp=document.getElementById('msg-inp');
+  const m=inp.value.trim();if(!m)return;
+  const r=await fetch('/sosyal/sohbet/'+sid+'/mesaj/',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/x-www-form-urlencoded'},body:'metin='+encodeURIComponent(m)});
+  if(!r.ok)return;
+  const d=await r.json();
+  const l=document.getElementById('msg-list');
+  const empty=l.querySelector('[style*="3rem"]');if(empty)empty.remove();
+  const div=document.createElement('div');div.className='msg-row mine';
+  div.innerHTML=`<div class="msg-bbl"><p>${d.metin}</p><span class="msg-time">${d.saat}</span></div><div class="av av-sm">${MY_H}</div>`;
+  l.appendChild(div);l.scrollTop=l.scrollHeight;inp.value='';
+}
+</script>
+{% endblock %}

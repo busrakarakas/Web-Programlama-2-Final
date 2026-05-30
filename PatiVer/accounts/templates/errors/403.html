@@ -1,0 +1,22 @@
+{% load static %}<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>403 — Erişim Engellendi — PatiVer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="error-page">
+  <div class="error-inner">
+    <div class="error-code">403</div>
+    <span class="error-paw">🙅</span>
+    <h2>Bu Bölgeye Giremezsin!</h2>
+    <p>Bu sayfaya erişim yetkiniz yok. Giriş yapmanız veya farklı bir hesapla denemeniz gerekiyor olabilir.</p>
+    <div class="error-btns">
+      <a href="/" class="btn-err-primary">🏠 Anasayfaya Dön</a>
+      <a href="/giris/" class="btn-err-outline">🔑 Giriş Yap</a>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Giriş — PatiVer{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-split">
+    <div class="auth-left">
+      <div>
+        <div class="auth-brand"><div class="auth-brand-icon">🐾</div> PatiVer</div>
+        <h2 style="margin-top:32px">Tekrar hoş geldin!</h2>
+        <p>Topluluğuna katılmak, paylaşmak ve destek olmak için giriş yap.</p>
+        <div class="auth-left-features">
+          <div class="auth-feat"><div class="auth-feat-icon">📣</div> Sosyal akışa katıl</div>
+          <div class="auth-feat"><div class="auth-feat-icon">💜</div> Bağış kampanyalarını takip et</div>
+          <div class="auth-feat"><div class="auth-feat-icon">🏥</div> Veteriner randevusu al</div>
+          <div class="auth-feat"><div class="auth-feat-icon">💬</div> Toplulukla sohbet et</div>
+        </div>
+      </div>
+      <p style="font-size:.8rem;opacity:.5">© 2024 PatiVer</p>
+    </div>
+    <div class="auth-right">
+      <h2>Giriş Yap</h2>
+      <p>Hesabın yok mu? <a href="{% url 'kayit' %}" style="color:var(--brand);font-weight:600">Ücretsiz üye ol</a></p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="fg">
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="ferr">{{ field.errors|join:", " }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        {% if form.non_field_errors %}<div class="ferr">{{ form.non_field_errors|join:", " }}</div>{% endif %}
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;padding:13px">Giriş Yap →</button>
+      </form>
+      <div class="auth-switch">Hesabın yok mu? <a href="{% url 'kayit' %}">Kayıt Ol</a></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

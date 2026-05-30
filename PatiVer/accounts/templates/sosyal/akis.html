@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% block title %}Sosyal Akış — PatiVer{% endblock %}
+{% block content %}
+<div class="container py-page">
+  <div class="page-hdr">
+    <h1>📣 Sosyal Akış</h1>
+    <p>Dostlarının maceralarını paylaş, topluluğunla bağlantı kur.</p>
+  </div>
+
+  <div class="akis-layout">
+    <div class="feed">
+
+      {% if user.is_authenticated %}
+      <div class="card compose-card">
+        <div class="tab-bar">
+          <button class="tab active" onclick="showTab('yazi',this)">✏️ Gönderi Yaz</button>
+          <button class="tab" onclick="showTab('anket',this)">🗳️ Anket Oluştur</button>
+        </div>
+        <div id="tab-yazi">
+          <form method="post" action="{% url 'gonderi_olustur' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="compose-row">
+              <div class="av av-md">{{ user.username|first|upper }}</div>
+              <textarea name="icerik" class="compose-ta" placeholder="Dostunla ilgili bir anı paylaş... 🐾" rows="3"></textarea>
+            </div>
+            <div class="compose-foot">
+              <label class="file-lbl">📷 Resim Ekle<input type="file" name="resim" accept="image/*" onchange="prevImg(this)" style="display:none"></label>
+              <button type="submit" class="btn btn-primary btn-sm">Paylaş →</button>
+            </div>
+            <div id="img-prev"></div>
+          </form>
+        </div>
+        <div id="tab-anket" style="display:none">
+          <form method="post" action="{% url 'anket_olustur' %}">
+            {% csrf_token %}
+            <div class="compose-row">
+              <div class="av av-md">{{ user.username|first|upper }}</div>
+              <input type="text" name="soru" class="compose-line" placeholder="Anket sorunuzu yazın..." required>
+            </div>
+            <div id="opts-wrap" class="opts-list">
+              <input type="text" name="s1" class="opt-fi" placeholder="Seçenek 1" required>
+              <input type="text" name="s2" class="opt-fi" placeholder="Seçenek 2" required>
+            </div>
+            <div class="compose-foot">
+              <button type="button" class="file-lbl" onclick="addOpt()">+ Seçenek Ekle</button>
+              <button type="submit" class="btn btn-primary btn-sm">Yayınla →</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+      {% for item in data %}{% with g=item.g %}
+      <div class="card post-card" id="p{{ g.pk }}">
+        <div class="post-hdr">
+          <div class="post-yazar">
+            <div class="av av-md">{{ g.yazar.username|first|upper }}</div>
+            <div class="post-yazar-info">
+              <strong>{{ g.yazar.get_full_name|default:g.yazar.username }}</strong>
+              <span>{{ g.olusturuldu|timesince }} önce</span>
+            </div>
+          </div>
+        </div>
+        <div class="post-body">
+          {% if g.icerik %}<p class="post-text">{{ g.icerik }}</p>{% endif %}
+          {% if g.resim %}<div class="post-img-wrap"><img src="{{ g.resim.url }}" alt="Gönderi" class="post-img" loading="lazy"></div>{% endif %}
+          {% if g.anket %}
+          <div class="poll-block">
+            <p class="poll-q">{{ g.anket.soru }}</p>
+            <div class="poll-opts" id="poll-{{ g.anket.pk }}">
+              {% for s in g.anket.secenekler.all %}
+              <div class="opt-item" data-id="{{ s.pk }}">
+                {% if item.kullanici_oyu %}
+                  <div class="opt-bar {% if item.kullanici_oyu.pk == s.pk %}opted{% endif %}">
+                    <div class="opt-fill" style="width:{{ s.yuzde }}%"></div>
+                    <span class="opt-lbl">{% if item.kullanici_oyu.pk == s.pk %}✓ {% endif %}{{ s.metin }}</span>
+                    <span class="opt-pct">{{ s.yuzde }}%</span>
+                  </div>
+                {% elif user.is_authenticated %}
+                  <button class="opt-btn" onclick="oyVer({{ g.anket.pk }},{{ s.pk }},this)">{{ s.metin }}</button>
+                {% else %}
+                  <div class="opt-bar">
+                    <div class="opt-fill" style="width:{{ s.yuzde }}%"></div>
+                    <span class="opt-lbl">{{ s.metin }}</span>
+                    <span class="opt-pct">{{ s.yuzde }}%</span>
+                  </div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            <p class="poll-meta" id="pm-{{ g.anket.pk }}">{{ g.anket.toplam_oy }} oy</p>
+          </div>
+          {% endif %}
+        </div>
+        <div class="post-foot">
+          <div class="post-stats">
+            <span id="bs-{{ g.pk }}">{{ g.begeni_sayisi }} beğeni</span>
+            <span id="ys-{{ g.pk }}">{{ g.yorum_sayisi }} yorum</span>
+          </div>
+          <div class="post-acts">
+            {% if user.is_authenticated %}
+            <button class="act-btn {% if item.begendi %}liked{% endif %}" id="bb-{{ g.pk }}" onclick="begen({{ g.pk }},this)">
+              ❤️ {% if item.begendi %}Beğenildi{% else %}Beğen{% endif %}
+            </button>
+            {% endif %}
+            <button class="act-btn" onclick="toggleYorum({{ g.pk }})">💬 Yorum</button>
+          </div>
+          <div class="yorum-panel" id="yp-{{ g.pk }}" style="display:none">
+            <div class="yorum-list" id="yl-{{ g.pk }}">
+              {% for y in g.yorumlar.all %}
+              <div class="yorum-item">
+                <div class="av av-sm">{{ y.yazar.username|first|upper }}</div>
+                <div class="yorum-bbl">
+                  <strong>{{ y.yazar.get_full_name|default:y.yazar.username }}</strong>
+                  <p>{{ y.metin }}</p>
+                </div>
+              </div>
+              {% empty %}<p class="empty-y" id="ey-{{ g.pk }}">Henüz yorum yok. İlk yorumu sen yap!</p>
+              {% endfor %}
+            </div>
+            {% if user.is_authenticated %}
+            <div class="yorum-form">
+              <div class="av av-sm">{{ user.username|first|upper }}</div>
+              <input class="yorum-inp" id="yi-{{ g.pk }}" placeholder="Yorumunu yaz..." onkeydown="if(event.key==='Enter')yorum({{ g.pk }})">
+              <button class="btn btn-primary btn-xs" onclick="yorum({{ g.pk }})">Gönder</button>
+            </div>
+            {% else %}
+            <p style="font-size:.85rem;color:var(--muted);padding:8px 0"><a href="{% url 'giris' %}" style="color:var(--brand);font-weight:600">Giriş yapın</a> yorum yapmak için.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endwith %}{% endfor %}
+
+      {% if not data %}
+      <div class="card empty-card">
+        <div class="empty-ico">🐾</div>
+        <h3>Henüz gönderi yok</h3>
+        <p>İlk paylaşımı sen yap!</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="sidebar">
+      <div class="card card-sm">
+        <div class="card-h"># Trend Konular</div>
+        <div class="trend-tags">
+          {% for t in trend %}<span class="trend-tag">{{ t }}</span>{% endfor %}
+        </div>
+      </div>
+      {% if not user.is_authenticated %}
+      <div class="card join-card card-sm">
+        <div class="card-h">Topluluğa Katıl! 🐾</div>
+        <p>Paylaşmak, oy vermek ve yorum yapmak için üye ol.</p>
+        <a href="{% url 'kayit' %}" class="btn-join">Üye Ol</a>
+        <a href="{% url 'giris' %}" class="btn-join-out">Giriş Yap</a>
+      </div>
+      {% else %}
+      <div class="card card-sm">
+        <div class="card-h">Hızlı Erişim</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="{% url 'bagis' %}" class="btn btn-secondary btn-sm" style="justify-content:flex-start">💜 Bağış Yap</a>
+          <a href="{% url 'veteriner' %}" class="btn btn-ghost btn-sm" style="justify-content:flex-start">🏥 Veteriner Bul</a>
+          <a href="{% url 'sohbet' %}" class="btn btn-ghost btn-sm" style="justify-content:flex-start">💬 Sohbet Et</a>
+        </div>
+      </div>
+      {% endif %}
+    </aside>
+  </div>
+</div>
+
+<script>
+const CSRF='{{ csrf_token }}';
+let optN=2;
+function showTab(id,btn){
+  document.querySelectorAll('[id^="tab-"]').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).style.display='';
+  btn.classList.add('active');
+}
+function addOpt(){
+  if(optN>=5)return; optN++;
+  const w=document.getElementById('opts-wrap');
+  const i=document.createElement('input');
+  i.type='text';i.name='s'+optN;i.placeholder='Seçenek '+optN;i.className='opt-fi';
+  w.appendChild(i);
+}
+function prevImg(inp){
+  if(!inp.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>{document.getElementById('img-prev').innerHTML='<img src="'+e.target.result+'" style="max-height:200px;border-radius:10px;margin-top:10px">'};
+  r.readAsDataURL(inp.files[0]);
+}
+async function oyVer(aid,sid,btn){
+  btn.disabled=true;btn.style.opacity='.6';
+  const r=await fetch('/sosyal/oy/'+aid+'/',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/x-www-form-urlencoded'},body:'sid='+sid});
+  if(!r.ok){btn.disabled=false;btn.style.opacity='';return;}
+  const d=await r.json();
+  document.getElementById('poll-'+aid).innerHTML=d.sonuc.map(s=>`
+    <div class="opt-item"><div class="opt-bar ${s.secildi?'opted':''}">
+      <div class="opt-fill" style="width:${s.pct}%"></div>
+      <span class="opt-lbl">${s.secildi?'✓ ':''}${s.metin}</span>
+      <span class="opt-pct">${s.pct}%</span>
+    </div></div>`).join('');
+  document.getElementById('pm-'+aid).textContent=d.toplam+' oy';
+}
+async function begen(id,btn){
+  const r=await fetch('/sosyal/begen/'+id+'/',{method:'POST',headers:{'X-CSRFToken':CSRF}});
+  const d=await r.json();
+  btn.textContent=d.begendi?'❤️ Beğenildi':'❤️ Beğen';
+  btn.classList.toggle('liked',d.begendi);
+  document.getElementById('bs-'+id).textContent=d.sayi+' beğeni';
+}
+function toggleYorum(id){
+  const p=document.getElementById('yp-'+id);
+  p.style.display=p.style.display==='none'?'':'none';
+  if(p.style.display===''){const inp=document.getElementById('yi-'+id);if(inp)inp.focus();}
+}
+async function yorum(id){
+  const inp=document.getElementById('yi-'+id);
+  const metin=inp.value.trim();if(!metin)return;
+  const r=await fetch('/sosyal/yorum/'+id+'/',{method:'POST',headers:{'X-CSRFToken':CSRF,'Content-Type':'application/x-www-form-urlencoded'},body:'metin='+encodeURIComponent(metin)});
+  const d=await r.json();
+  const list=document.getElementById('yl-'+id);
+  const ey=document.getElementById('ey-'+id);if(ey)ey.remove();
+  const div=document.createElement('div');div.className='yorum-item';
+  div.innerHTML=`<div class="av av-sm">${d.harf}</div><div class="yorum-bbl"><strong>${d.yazar}</strong><p>${d.metin}</p></div>`;
+  list.appendChild(div);inp.value='';
+  document.getElementById('ys-'+id).textContent=d.sayi+' yorum';
+}
+</script>
+{% endblock %}

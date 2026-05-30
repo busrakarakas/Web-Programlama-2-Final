@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PatiVer{% endblock %}</title>
+  {% load static %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="{% url 'anasayfa' %}" class="logo">
+      <div class="logo-paw">🐾</div>
+      Pati<span>Ver</span>
+    </a>
+    <button class="nav-toggle" aria-label="Menü">☰</button>
+    <div class="nav-center">
+      <a href="{% url 'akis' %}" class="nav-link {% if request.resolver_match.url_name == 'akis' %}active{% endif %}">
+        <span class="nl-icon">📣</span> Sosyal
+      </a>
+      <a href="{% url 'sohbet' %}" class="nav-link {% if request.resolver_match.url_name == 'sohbet' %}active{% endif %}">
+        <span class="nl-icon">💬</span> Sohbet
+      </a>
+      <a href="{% url 'bagis' %}" class="nav-link {% if request.resolver_match.url_name == 'bagis' %}active{% endif %}">
+        <span class="nl-icon">💜</span> Bağış
+      </a>
+      <a href="{% url 'veteriner' %}" class="nav-link {% if 'veteriner' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="nl-icon">🏥</span> Veteriner
+      </a>
+    </div>
+    <div class="nav-right">
+      {% if user.is_authenticated %}
+        <a href="{% url 'profil' %}" class="nav-user-badge">
+          <div class="nav-av">{{ user.username|first|upper }}</div>
+          {{ user.get_full_name|default:user.username }}
+        </a>
+        <a href="{% url 'cikis' %}" class="btn-nav btn-nav-outline">Çıkış</a>
+      {% else %}
+        <a href="{% url 'giris' %}" class="btn-nav btn-nav-outline">Giriş</a>
+        <a href="{% url 'kayit' %}" class="btn-nav btn-nav-primary">Üye Ol</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+{% if messages %}
+<div class="msg-wrapper">
+  {% for m in messages %}
+  <div class="msg msg-{{ m.tags }}">
+    <span>{{ m }}</span>
+    <button onclick="this.parentElement.remove()">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div class="footer-brand-icon">🐾</div>
+          <span class="footer-brand-name">PatiVer</span>
+        </div>
+        <p class="footer-desc">Evcil hayvan severler için sosyal platform. Paylaş, bağış yap, veteriner randevusu al.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <div class="footer-links-col">
+          <a href="{% url 'akis' %}">Sosyal Akış</a>
+          <a href="{% url 'sohbet' %}">Pati Sohbet</a>
+          <a href="{% url 'bagis' %}">Bağış Yap</a>
+          <a href="{% url 'veteriner' %}">Veteriner</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Hesap</h4>
+        <div class="footer-links-col">
+          {% if user.is_authenticated %}
+          <a href="{% url 'profil' %}">Profilim</a>
+          <a href="{% url 'randevularim' %}">Randevularım</a>
+          <a href="{% url 'cikis' %}">Çıkış Yap</a>
+          {% else %}
+          <a href="{% url 'giris' %}">Giriş Yap</a>
+          <a href="{% url 'kayit' %}">Üye Ol</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Destek</h4>
+        <div class="footer-links-col">
+          <a href="{% url 'bagis' %}">Bağış Kampanyaları</a>
+          <a href="{% url 'veteriner' %}">Veteriner Bul</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 PatiVer — Evcil hayvan severler bir arada 🐾</span>
+    </div>
+  </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

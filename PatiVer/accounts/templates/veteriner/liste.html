@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Veterinerler — PatiVer{% endblock %}
+{% block content %}
+<div class="container py-page">
+  <div class="page-hdr">
+    <h1>🏥 Veteriner Kliniği Bul</h1>
+    <p>Yakınındaki veterinerleri listele ve kolayca randevu al.</p>
+  </div>
+  <div class="vet-grid">
+    {% for v in vets %}
+    <div class="card vet-card">
+      <div class="vet-header">
+        <div class="vet-ico">🏥</div>
+        <div>
+          <h3>{{ v.isim }}</h3>
+          <span class="vet-uzm">{{ v.uzmanlik }}</span>
+          <div class="vet-stars">★★★★★ {{ v.puan }}/5.0</div>
+        </div>
+      </div>
+      <div class="vet-info">
+        <div class="vet-row">📍 {{ v.adres }}</div>
+        <div class="vet-row">📞 <a href="tel:{{ v.telefon }}" style="color:var(--brand);font-weight:600">{{ v.telefon }}</a></div>
+        <div class="vet-row">✉️ <a href="mailto:{{ v.email }}" style="color:var(--brand)">{{ v.email }}</a></div>
+      </div>
+      <a href="{% url 'randevu' v.pk %}" class="btn btn-primary btn-full">Randevu Al →</a>
+    </div>
+    {% empty %}
+    <div class="card empty-card" style="grid-column:1/-1">
+      <div class="empty-ico">🏥</div>
+      <h3>Henüz veteriner eklenmemiş</h3>
+      <p>Admin panelinden veteriner ekleyebilirsiniz.</p>
+      <a href="/admin/veteriner/veteriner/add/" class="btn btn-primary" style="margin-top:16px">Admin Paneli →</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

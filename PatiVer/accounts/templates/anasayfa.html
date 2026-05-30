@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}PatiVer — Evcil Hayvan Platformu{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">✨ Türkiye'nin Evcil Hayvan Topluluğu</div>
+    <h1>Bir Patiye de<br><span class="hi">Sen Dokun</span></h1>
+    <p>Sosyal paylaşımdan bağışa, sohbetten veteriner randevusuna — evcil hayvan severler için her şey tek yerde.</p>
+    <div class="hero-btns">
+      <a href="{% url 'akis' %}" class="btn-hero-primary">🐾 Topluluğa Katıl</a>
+      <a href="{% url 'bagis' %}" class="btn-hero-outline">💜 Bağış Yap</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><strong>2.4K+</strong><span>Üye</span></div>
+      <div class="hero-stat"><strong>180K₺</strong><span>Toplanan Bağış</span></div>
+      <div class="hero-stat"><strong>48</strong><span>Veteriner</span></div>
+      <div class="hero-stat"><strong>12K+</strong><span>Paylaşım</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="py-section" style="background:var(--bg)">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-label">Platform Özellikleri</div>
+      <h2 class="sec-title">Platformda Neler Var?</h2>
+      <p class="sec-sub">İhtiyacın olan her şey, tek çatı altında.</p>
+    </div>
+    <div class="feat-grid">
+      <a href="{% url 'akis' %}" class="feat-card">
+        <div class="feat-icon-wrap">📣</div>
+        <h3>Sosyal Akış</h3>
+        <p>Anılarını paylaş, anket oluştur, beğen ve yorum yap. Topluluğunla bağlantıda kal.</p>
+        <div class="feat-arrow">Keşfet →</div>
+      </a>
+      <a href="{% url 'sohbet' %}" class="feat-card">
+        <div class="feat-icon-wrap">💬</div>
+        <h3>Pati Sohbet</h3>
+        <p>Gerçek zamanlı sohbet kanalları. Diğer hayvanseverlerle anlık iletişim kur.</p>
+        <div class="feat-arrow">Sohbet Et →</div>
+      </a>
+      <a href="{% url 'bagis' %}" class="feat-card">
+        <div class="feat-icon-wrap">💜</div>
+        <h3>Bağış Kampanyaları</h3>
+        <p>Sokak hayvanları için açılan kampanyalara destek ol. Her bağış bir fark yaratır.</p>
+        <div class="feat-arrow">Destek Ol →</div>
+      </a>
+      <a href="{% url 'veteriner' %}" class="feat-card">
+        <div class="feat-icon-wrap">🏥</div>
+        <h3>Veteriner Randevu</h3>
+        <p>Yakınındaki veterinerleri bul, online randevu talebi gönder. Hızlı ve kolay.</p>
+        <div class="feat-arrow">Randevu Al →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+{% if kampanyalar %}
+<section class="py-section" style="background:var(--bg2)">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-label">Aktif Kampanyalar</div>
+      <h2 class="sec-title">Destek Bekleyen Canlar</h2>
+      <p class="sec-sub">Kampanyalara katkıda bulunarak bir canın hayatını değiştir.</p>
+    </div>
+    <div class="kamp-grid">
+      {% for k in kampanyalar %}
+      <div class="kamp-card">
+        <div class="kamp-emoji">{{ k.emoji }}</div>
+        <h4>{{ k.baslik }}</h4>
+        <p>{{ k.aciklama|truncatechars:90 }}</p>
+        <div class="kamp-meta">
+          <span class="raised">{{ k.toplanan }}₺ toplandı</span>
+          <span class="goal">Hedef: {{ k.hedef }}₺</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:{{ k.yuzde }}%"></div></div>
+        <div style="margin-top:4px;margin-bottom:14px">
+          <span style="font-size:.75rem;color:var(--brand);font-weight:700">%{{ k.yuzde }} tamamlandı</span>
+        </div>
+        <a href="{% url 'bagis' %}" class="btn btn-primary btn-sm" style="width:100%;text-align:center">Destek Ol</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if son_gonderiler %}
+<section class="py-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-label">Son Paylaşımlar</div>
+      <h2 class="sec-title">Topluluktan Haberler</h2>
+    </div>
+    <div class="post-preview-row">
+      {% for g in son_gonderiler %}
+      <div class="post-preview">
+        <div class="pp-header">
+          <div class="av av-md">{{ g.yazar.username|first|upper }}</div>
+          <div>
+            <strong style="font-size:.875rem;display:block;color:var(--brand-dark)">{{ g.yazar.get_full_name|default:g.yazar.username }}</strong>
+            <span style="font-size:.75rem;color:var(--muted)">{{ g.olusturuldu|timesince }} önce</span>
+          </div>
+        </div>
+        {% if g.icerik %}<p class="pp-text">{{ g.icerik|truncatechars:120 }}</p>{% endif %}
+        {% if g.anket %}<p class="pp-poll">🗳️ {{ g.anket.soru|truncatechars:80 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:32px">
+      <a href="{% url 'akis' %}" class="btn btn-outline btn-lg">Tüm Paylaşımlar →</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

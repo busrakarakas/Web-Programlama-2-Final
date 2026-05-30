@@ -11,9 +11,13 @@ Türkiye'de sokak hayvanı sayısının giderek artmasına rağmen mevcut dijita
 
 
 🏥 Hayvanların sağlık ve davranış durumu topluluk + veteriner işbirliğiyle izlenir
+
 📍 Kayıp hayvanlar gerçek zamanlı harita üzerinde raporlanır ve topluluk tarafından güncellenir
+
 🎁 İhtiyaç listeleri ve güvenli bağış altyapısıyla yardım şeffaf biçimde iletilir
+
 💬 Sahipler, gönüllüler ve veterinerler anlık mesajlaşma ile koordinasyon sağlar
+
 🏅 Rozet & puan sistemi aktif katılımı teşvik eder
 
 
@@ -34,7 +38,9 @@ Her hayvanın profilinde mama, ilaç, battaniye gibi ihtiyaçlar listelenir. Str
 
 💬 Anlık Mesajlaşma
 Django Channels (WebSocket) tabanlı gerçek zamanlı sohbet altyapısı; kayıp hayvan arama sürecinde hızlı koordinasyon sağlar.
+
 🏅 Rozet & Puan Sistemi
 Bağış, yardım bildirimi ve gönüllülük faaliyetleri puanla ödüllendirilir; kullanıcılar kademeli rozetler kazanır.
+
 👤 Rol Tabanlı Yetkilendirme
 Hayvan Sahibi · Gönüllü · Veteriner · Yönetici — her rol özelleştirilmiş yetki ve arayüzle sisteme dahil olur.

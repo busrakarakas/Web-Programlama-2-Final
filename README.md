@@ -6,6 +6,7 @@ Geliştirici: Büşra Karakaş 2024481017  & Nazlı Karnal 2024481046
                 
 
 🐕 Proje Hakkında
+
 Türkiye'de sokak hayvanı sayısının giderek artmasına rağmen mevcut dijital araçlar yalnızca kayıp ilanı ya da bağış toplama gibi tek bir işleve odaklanmaktadır. PATİVER, bu parçalı yapının yerine geçen bütüncül bir ekosistem sunar:
 
 
